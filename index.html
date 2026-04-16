@@ -4,152 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بوابة استعلام المستحقات</title>
-    <!-- استيراد خط تجوال من جوجل ليعطي مظهراً عصرياً -->
     <link href="https://googleapis.com" rel="stylesheet">
-    
     <style>
-        :root {
-            --primary-color: #2563eb; /* أزرق عصري */
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --success-bg: #f0fdf4;
-            --success-text: #166534;
-            --error-bg: #fef2f2;
-            --error-text: #991b1b;
-        }
-
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 450px;
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 24px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-
-        h2 {
-            font-weight: 700;
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            color: var(--text-main);
-        }
-
-        p.subtitle {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-bottom: 30px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-family: inherit;
-            outline: none;
-            transition: all 0.3s ease;
-            box-sizing: border-box;
-        }
-
-        input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.3s;
-        }
-
-        button:hover {
-            background-color: #1d4ed8;
-            transform: translateY(-2px);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        #result {
-            margin-top: 30px;
-            min-height: 80px;
-            transition: all 0.4s ease;
-        }
-
-        .result-card {
-            padding: 20px;
-            border-radius: 16px;
-            animation: fadeIn 0.5s ease forwards;
-        }
-
-        .success { background: var(--success-bg); color: var(--success-text); border: 1px solid #dcfce7; }
-        .error { background: var(--error-bg); color: var(--error-text); border: 1px solid #fee2e2; }
-
-        .amount {
-            display: block;
-            font-size: 2rem;
-            font-weight: 700;
-            margin-top: 10px;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* لودر بسيط أثناء البحث */
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary-color);
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-        }
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; }
+        body { font-family: 'Tajawal', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { width: 90%; max-width: 450px; background: white; padding: 40px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        h2 { font-weight: 700; margin-bottom: 10px; }
+        p.subtitle { color: #64748b; font-size: 0.95rem; margin-bottom: 30px; }
+        input { width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: 0.3s; box-sizing: border-box; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 500; cursor: pointer; margin-top: 15px; transition: 0.3s; }
+        button:hover { background: #1d4ed8; transform: translateY(-2px); }
+        #result { margin-top: 30px; min-height: 100px; }
+        .result-card { padding: 20px; border-radius: 16px; animation: fadeIn 0.5s ease; }
+        .success { background: #f0fdf4; color: #166534; border: 1px solid #dcfce7; }
+        .error { background: #fef2f2; color: #991b1b; border: 1px solid #fee2e2; }
+        .amount { display: block; font-size: 2.2rem; font-weight: 700; margin-top: 10px; color: #dc2626; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>أهلاً بك</h2>
-    <p class="subtitle">أدخل اسمك بالكامل للاستعلام عن مستحقاتك المالية</p>
-    
-    <div class="input-group">
-        <input type="text" id="customerName" placeholder="مثال: محمد أحمد علي" autocomplete="off">
-    </div>
-    
-    <button onclick="checkAmount()">استعلام سريع</button>
-    
+    <h2>استعلام عن الرصيد</h2>
+    <p class="subtitle">أدخل اسمك كما هو مسجل لدينا لمعرفة المبلغ المطلوب</p>
+    <input type="text" id="customerName" placeholder="اكتب اسمك هنا..." autocomplete="off">
+    <button onclick="checkAmount()">بحث الآن</button>
     <div id="result"></div>
 </div>
 
@@ -158,31 +40,34 @@
         const nameInput = document.getElementById('customerName').value.trim();
         const resultDiv = document.getElementById('result');
         
-        // --- ضع رابط الـ CSV الخاص بـ Google Sheets هنا ---
-        const sheetUrl = 'https://docs.google.com/spreadsheets/d/1btOXRh8NrCV2JsplQCU2eKw-TO2lCbGR/edit?usp=sharing&ouid=106086731750901510590&rtpof=true&sd=true;
+        // تم تحويل رابط ملفك لصيغة التصدير المباشر CSV
+        const sheetUrl = 'https://google.com';
 
         if(!nameInput) {
             resultDiv.innerHTML = '<div class="result-card error">يرجى كتابة الاسم للبحث</div>';
             return;
         }
 
-        resultDiv.innerHTML = '<div class="loader"></div>';
+        resultDiv.innerHTML = '<div class="loader"></div><p>جاري فحص السجلات...</p>';
 
         try {
             const response = await fetch(sheetUrl);
             const data = await response.text();
-            const rows = data.split('\n');
+            const rows = data.split(/\r?\n/);
             let found = false;
 
-            for (let i = 1; i < rows.length; i++) {
+            for (let i = 0; i < rows.length; i++) {
+                // تقسيم الصف إلى أعمدة (الاسم في الأول، المبلغ في الثاني)
                 const cols = rows[i].split(',');
-                // نفترض أن الاسم في العمود الأول (0) والمبلغ في العمود الثاني (1)
-                if (cols[0] && cols[0].trim().toLowerCase() === nameInput.toLowerCase()) {
+                const nameInSheet = cols[0] ? cols[0].replace(/"/g, "").trim() : "";
+                const amountInSheet = cols[1] ? cols[1].replace(/"/g, "").trim() : "0";
+
+                if (nameInSheet.toLowerCase() === nameInput.toLowerCase()) {
                     resultDiv.innerHTML = `
                         <div class="result-card success">
-                            مرحباً، ${cols[0].trim()}<br>
-                            المبلغ المستحق حالياً هو:
-                            <span class="amount">${cols[1].trim()} ريال</span>
+                            مرحباً، ${nameInSheet}<br>
+                            المبلغ المستحق عليك هو:
+                            <span class="amount">${amountInSheet} ريال</span>
                         </div>`;
                     found = true;
                     break;
@@ -190,11 +75,11 @@
             }
 
             if (!found) {
-                resultDiv.innerHTML = '<div class="result-card error">لم نجد بيانات لهذا الاسم. يرجى التأكد من كتابة الاسم بشكل صحيح.</div>';
+                resultDiv.innerHTML = '<div class="result-card error">الاسم غير مسجل. يرجى التأكد من كتابة الاسم صحيحاً أو التواصل مع الإدارة.</div>';
             }
             
         } catch (error) {
-            resultDiv.innerHTML = '<div class="result-card error">حدث خطأ في جلب البيانات، يرجى المحاولة لاحقاً.</div>';
+            resultDiv.innerHTML = '<div class="result-card error">عذراً، حدث خطأ في الاتصال بالبيانات. تأكد من أن الملف متاح للمشاركة.</div>';
         }
     }
 </script>
