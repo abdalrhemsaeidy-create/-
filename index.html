@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة استعلام المستحقات</title>
+    <!-- استيراد خط تجوال من جوجل ليعطي مظهراً عصرياً -->
+    <link href="https://googleapis.com" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2563eb; /* أزرق عصري */
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --success-bg: #f0fdf4;
+            --success-text: #166534;
+            --error-bg: #fef2f2;
+            --error-text: #991b1b;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 450px;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        h2 {
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #result {
+            margin-top: 30px;
+            min-height: 80px;
+            transition: all 0.4s ease;
+        }
+
+        .result-card {
+            padding: 20px;
+            border-radius: 16px;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .success { background: var(--success-bg); color: var(--success-text); border: 1px solid #dcfce7; }
+        .error { background: var(--error-bg); color: var(--error-text); border: 1px solid #fee2e2; }
+
+        .amount {
+            display: block;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* لودر بسيط أثناء البحث */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>أهلاً بك</h2>
+    <p class="subtitle">أدخل اسمك بالكامل للاستعلام عن مستحقاتك المالية</p>
+    
+    <div class="input-group">
+        <input type="text" id="customerName" placeholder="مثال: محمد أحمد علي" autocomplete="off">
+    </div>
+    
+    <button onclick="checkAmount()">استعلام سريع</button>
+    
+    <div id="result"></div>
+</div>
+
+<script>
+    async function checkAmount() {
+        const nameInput = document.getElementById('customerName').value.trim();
+        const resultDiv = document.getElementById('result');
+        
+        // --- ضع رابط الـ CSV الخاص بـ Google Sheets هنا ---
+        const sheetUrl = 'https://doc-00-0c-sheets.googleusercontent.com/export/fgemhus40dueb94lp8sjeb79r8/u12qaesotud2tag33g4pmntqs4/1776344210000/106086731750901510590/106086731750901510590/1btOXRh8NrCV2JsplQCU2eKw-TO2lCbGR?format=csv&id=1btOXRh8NrCV2JsplQCU2eKw-TO2lCbGR&gid=1100780538&dat=ABP4XCHt7b-jptxC5f94vcq91K8w0uHwjb_IHCWTHzSdK_XqPgCFelkZGAQJbGV4w7uIa1ucf0kKnaTpXQ5D0SfALD1ntHHwaTSjkWPUFtYFF6JQkZ-PaIhqjYAkLRatEOtTGnTJYslt7BLbIKe5H3MWUhdJ2WapGoTu0v5QZyeW1Rf0mc6S8x1QS9yzwbDXSteq4Xdfl049n7gE2o9C0qmZH3G-gblXv2iqBNyBVpM0lbEfUcUsRzcjEpln007bx3DsW8SvZ6ekM1UDtd-979Z8IdGnTC_p-JcCGNgo1di46n8G7LJmfB83Hbbb3Vim33WnfQhcpa_SyK6x2ti2dTBkCG2HG78lcl76kDujRKNwiD7PZydWJW-dCmI89cjYuvXFq0QIY8uiJWJw5La4lw9kBrv2t_J0dOtHWulJHw8zXrS8fCkuOHpKjyBEMhdsiuYhedUyWsCSDWZvKhQBgwdvSSiK9kpygcWJzdiSRvcqXqc49jzWIJix-Gucx6xd9fxXa7GJt-FeSjEoXRAVdj-yDiXCKQGI8U1VtP7KOvjCLbL80CIysHbp-x0kLpG0E2rjdaaPFl-JNp5_Uncvwrif09m132z09K46rcPcLV0fw2nphh9OSBdhWoohf1Y5OUH2PHtbMIi3eKCUtXA5VHf0XLAuZyo1ABjFpFOYNBLzhRTOlbEiOB3qOIF172awrGikWuq97TLYewEd87jkW-en_NLFoDvGcAhw6TBzIl9eDiW1ABkBIdNkmA6uX1GluADLwmoeR7SxMc8ToRnH9vjzJwAuiH94flVRt5ezacWHYtR4U91i7AMFObWfHMAwTmfT3_qgX9_-PSiEnyyzZM2Z5wJbkJUv-MhGbf3CUV4rJDfot3tS0Q1r5PAinbPsP1aXurtz4EhOD2zQQCyv2OHmneydZY7dg-zkPCz6mc5GPLHCPl-ZDG09oIEkb5AVKJRShwH16MQ8pC0SGzlH;
+
+        if(!nameInput) {
+            resultDiv.innerHTML = '<div class="result-card error">يرجى كتابة الاسم للبحث</div>';
+            return;
+        }
+
+        resultDiv.innerHTML = '<div class="loader"></div>';
+
+        try {
+            const response = await fetch(sheetUrl);
+            const data = await response.text();
+            const rows = data.split('\n');
+            let found = false;
+
+            for (let i = 1; i < rows.length; i++) {
+                const cols = rows[i].split(',');
+                // نفترض أن الاسم في العمود الأول (0) والمبلغ في العمود الثاني (1)
+                if (cols[0] && cols[0].trim().toLowerCase() === nameInput.toLowerCase()) {
+                    resultDiv.innerHTML = `
+                        <div class="result-card success">
+                            مرحباً، ${cols[0].trim()}<br>
+                            المبلغ المستحق حالياً هو:
+                            <span class="amount">${cols[1].trim()} ريال</span>
+                        </div>`;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                resultDiv.innerHTML = '<div class="result-card error">لم نجد بيانات لهذا الاسم. يرجى التأكد من كتابة الاسم بشكل صحيح.</div>';
+            }
+            
+        } catch (error) {
+            resultDiv.innerHTML = '<div class="result-card error">حدث خطأ في جلب البيانات، يرجى المحاولة لاحقاً.</div>';
+        }
+    }
+</script>
+
+</body>
+</html>
